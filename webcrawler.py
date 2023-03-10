@@ -1,6 +1,12 @@
 import requests
 import sqlite3
 from bs4 import BeautifulSoup
+from datetime import datetime
+
+def get_current_time():
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    return current_time
 
 # Define a URL base do site que será rastreado
 plataform = "PC"
@@ -12,7 +18,7 @@ c = conn.cursor()
 
 # Cria a tabela para armazenar os documentos HTML, se ela não existir
 c.execute('''CREATE TABLE IF NOT EXISTS documentos_html 
-             (id INTEGER PRIMARY KEY, url TEXT, html TEXT, plataform TEXT)''')
+             (id INTEGER PRIMARY KEY, url TEXT, html TEXT, plataform TEXT, timestamp DATETIME)''')
 # Função que busca e salva o HTML da página
 def salvar_html(url):
     # Faz uma requisição GET para a URL
@@ -26,7 +32,7 @@ def salvar_html(url):
 
     # Salva o HTML no banco de dados
     # if not url.startswith('https://www.nuuvem.com/br-pt/catalog/platforms/pc/page/'):
-    c.execute("INSERT INTO documentos_html (url, html, plataform) VALUES (?, ?, ?)", (url, html, plataform))
+    c.execute("INSERT INTO documentos_html (url, html, plataform, timestamp) VALUES (?, ?, ?, ?)", (url, html, plataform, get_current_time()))
     conn.commit()
 
     # Retorna o HTML
@@ -58,7 +64,7 @@ def rastrear_paginas(url):
 
 # Inicia o rastreamento na página inicial
 pageIndex = 1
-while pageIndex <= 2:       
+while pageIndex <= 10:       
     rastrear_paginas(base_url+str(pageIndex))
     pageIndex = pageIndex+1
 
