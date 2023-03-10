@@ -31,7 +31,6 @@ def salvar_html(url):
     html = str(soup)
 
     # Salva o HTML no banco de dados
-    # if not url.startswith('https://www.nuuvem.com/br-pt/catalog/platforms/pc/page/'):
     c.execute("INSERT INTO documentos_html (url, html, plataform, timestamp) VALUES (?, ?, ?, ?)", (url, html, plataform, get_current_time()))
     conn.commit()
 
@@ -47,7 +46,7 @@ def rastrear_paginas(url):
     soup = BeautifulSoup(html, 'html.parser')
 
     # Encontra todos os links na página
-    links = soup.find_all('a')
+    links = soup.find_all("a", "product-card--wrapper")
     # Rastreia os links encontrados
     for link in links:
         # Extrai o URL do link
@@ -55,16 +54,15 @@ def rastrear_paginas(url):
 
         if link_url is None:
             continue
-        # Ignora links externos ou não HTTP
-        if not link_url.startswith('https://www.nuuvem.com/br-pt/item/'):
-            continue
-
+        
+        print(link_url)
         # Salva o HTML da página linkada
         salvar_html(link_url)
 
 # Inicia o rastreamento na página inicial
-pageIndex = 1
-while pageIndex <= 10:       
+pageIndex = 51
+while pageIndex <= 60:
+    print("Current Page:",pageIndex)       
     rastrear_paginas(base_url+str(pageIndex))
     pageIndex = pageIndex+1
 
